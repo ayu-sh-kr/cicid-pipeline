@@ -25,6 +25,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
+      - name: Clean Maven Packages
+        run: mvn clean package
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -43,5 +46,5 @@ jobs:
           ECR_REPOSITORY: ${{secrets.AWS_REPO}}
           IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
         run: |
-          mvn clean packages -DskipTests spring-boot:build-image -Dspring-boot.build-image.imageName=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          mvn -DskipTests spring-boot:build-image -Dspring-boot.build-image.imageName=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
