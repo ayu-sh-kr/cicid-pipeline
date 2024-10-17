@@ -8,7 +8,7 @@ public class CICDController {
 
   @GetMapping("/")
   public HelloWorld hello() {
-    return new HelloWorld("Hello, World! -> Added docker on EC2 ");
+    return new HelloWorld("Hello, World! -> Added docker on EC2");
   }
 
   public record HelloWorld(
