@@ -27,23 +27,18 @@ jobs:
         with:
           mask-password: 'false'
 
-
       - name: Docker Login
-        env:
-          region: ${{secrets.AWS_REGION}}
-          registry: ${{steps.login-ecr.outputs.registry}}
-        run: aws ecr get-login-password --region $region | docker login --username AWS --password-stdin 647236272635.dkr.ecr.$region.amazonaws.com
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Pull Docker image from ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{secrets.AWS_REPO}}
           IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
-        run: |
-          sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        run: docker push 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
 
       - name: Deploy Docker container
         run: |
-          sudo docker stop my-app || true
-          sudo docker rm my-app || true
-          sudo docker run -d --name my-app -p 80:80 ${{ secrets.AWS_ECR_REGISTRY }}/${{ secrets.AWS_REPO }}:${{ secrets.AWS_IMAGE_TAG }}
+          docker stop my-app || true
+          docker rm my-app || true
+          docker run -d --name my-app -p 80:80 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
