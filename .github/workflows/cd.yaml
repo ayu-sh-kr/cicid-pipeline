@@ -27,11 +27,11 @@ jobs:
 
       - name: Pull Docker image from ECR
         env:
-          AWS_REGION: ${{secrets.AWS_REGION}}
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY_SECRET}}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{secrets.AWS_REPO}}
+          IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
         run: |
-          sudo docker pull ${{ secrets.AWS_ECR_REGISTRY }}/${{ secrets.AWS_REPO }}:${{ secrets.AWS_IMAGE_TAG }}
+          sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy Docker container
         run: |
