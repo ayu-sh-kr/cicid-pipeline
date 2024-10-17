@@ -11,7 +11,7 @@ public class CICDController {
     return new HelloWorld("Hello, World!");
   }
 
-  public static record HelloWorld(
+  public record HelloWorld(
       String message
   ) {
 
