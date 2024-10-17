@@ -29,7 +29,10 @@ jobs:
 
 
       - name: Docker Login
-        run: aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username ${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_us_east_1_amazonaws_com }} --password-stdin ${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_us_east_1_amazonaws_com }}
+        env:
+          region: ${{secrets.AWS_REGION}}
+          registry: ${{steps.login-ecr.outputs.registry}}
+        run: aws ecr get-login-password --region $region | docker login --username AWS --password-stdin 647236272635.dkr.ecr.$region.amazonaws.com
 
       - name: Pull Docker image from ECR
         env:
