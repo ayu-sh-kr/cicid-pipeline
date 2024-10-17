@@ -41,4 +41,4 @@ jobs:
         run: |
           docker stop my-app || true
           docker rm my-app || true
-          docker run -d --name my-app -p 80:80 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+          docker run -d --name my-app -p 8080:8080 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
