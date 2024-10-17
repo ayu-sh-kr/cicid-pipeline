@@ -24,6 +24,12 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'false'
+
+
+      - name: Docker Login
+        run: aws ecr get-login-password --region ${{secrets.AWS_REGION}} | docker login --username ${{ steps.login-ecr.outputs.docker_username_123456789012_dkr_ecr_us_east_1_amazonaws_com }} --password-stdin ${{ steps.login-ecr.outputs.docker_password_123456789012_dkr_ecr_us_east_1_amazonaws_com }}
 
       - name: Pull Docker image from ECR
         env:
