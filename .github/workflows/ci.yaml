@@ -46,5 +46,5 @@ jobs:
           ECR_REPOSITORY: ${{secrets.AWS_REPO}}
           IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
         run: |
-          mvn -DskipTests spring-boot:build-image -Dspring-boot.build-image.imageName=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
