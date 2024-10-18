@@ -27,9 +27,11 @@ jobs:
         with:
           mask-password: 'false'
 
-      - name: Docker Login and Image Pull
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com && docker pull 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+      - name: Docker Login
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
 
+      - name: Docker Image Pull
+        run: sudo docker pull 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
 
       - name: Deploy Docker container
         run: |
