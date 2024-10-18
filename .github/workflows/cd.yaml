@@ -31,11 +31,6 @@ jobs:
         with:
           mask-password: 'false'
 
-      - name: Printing Credentials For Check
-        env:
-          registry: ${{steps.login-ecr.outputs.registry}}
-        run: echo $registry
-
       - name: Provide docker permissions
         run: sudo usermod -aG docker ${USER}
 
