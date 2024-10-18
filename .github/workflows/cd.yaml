@@ -9,6 +9,10 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      REGION: ${{secrets.AWS_REGION}}
+      ECR_REPOSITORY: ${{secrets.AWS_REPO}}
+      IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
 
     steps:
       - name: Checkout code
@@ -27,13 +31,18 @@ jobs:
         with:
           mask-password: 'false'
 
+      - name: Printing Credentials For Check
+        env:
+          registry: ${{steps.login-ecr.outputs.registry}}
+        run: echo $registry
+
       - name: Provide docker permissions
         run: sudo usermod -aG docker ${USER}
 
       - name: Docker Login and Image Pull
         run: |
           aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
-          sudo docker pull 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+          sudo docker pull ${{steps.login-ecr.outputs.registry}}/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Current Status Check
         run: sudo docker ps
