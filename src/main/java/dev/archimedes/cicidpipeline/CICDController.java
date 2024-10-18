@@ -19,7 +19,8 @@ public class CICDController {
         new HelloWorld("Login to docker via AWS ECR"),
         new HelloWorld("Pull the docker image AWS ECR"),
         new HelloWorld("Created container and deployed on EC2"),
-        new HelloWorld("Create new EC2 instance, testing without AWS CLI")
+        new HelloWorld("Create new EC2 instance, testing without AWS CLI"),
+        new HelloWorld("Test with new EC2 instance completed successfully")
     );
   }
 
