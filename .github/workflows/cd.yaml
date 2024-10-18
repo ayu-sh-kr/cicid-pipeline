@@ -42,7 +42,7 @@ jobs:
       - name: Docker Login and Image Pull
         run: |
           aws ecr get-login-password --region ${{secrets.AWS_REGION}} | sudo docker login --username AWS --password-stdin ${{steps.login-ecr.outputs.registry}}
-          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.IMAGE_TAG}}
+          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.AWS_IMAGE_TAG}}
 
       - name: Current Status Check
         run: sudo docker ps
@@ -54,7 +54,7 @@ jobs:
         run: sudo docker rm my-app || true
 
       - name: Building New Container
-        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.IMAGE_TAG}}
+        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.AWS_IMAGE_TAG}}
 
       - name: Image Cleaning
         run: |
