@@ -27,14 +27,22 @@ jobs:
         with:
           mask-password: 'false'
 
-      - name: Docker Login
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
-
-      - name: Docker Image Pull
-        run: sudo docker pull 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+      - name: Docker Login and Image Pull
+        run: |
+          aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
+          sudo docker pull 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
 
       - name: Deploy Docker container
         run: |
+          echo "Starting Container Build"
+          echo "Stopping Current Container"
           docker stop my-app || true
+          echo "Removing Container"
           docker rm my-app || true
+          echo "Building New Container"
           docker run -d --name my-app -p 8080:8080 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+
+      - name: Image Cleaning
+        run: |
+          echo "Starting Image Pruning"
+          docker image prune -a -f
