@@ -41,21 +41,20 @@ jobs:
 
       - name: Docker Login and Image Pull
         run: |
-          aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 647236272635.dkr.ecr.us-east-1.amazonaws.com
-          sudo docker pull ${{steps.login-ecr.outputs.registry}}/$ECR_REPOSITORY:$IMAGE_TAG
+          aws ecr get-login-password --region ${{secrets.AWS_REGION}} | sudo docker login --username AWS --password-stdin ${{steps.login-ecr.outputs.registry}}
+          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.IMAGE_TAG}}
 
       - name: Current Status Check
         run: sudo docker ps
 
-      - name: Deploy Docker container
-        run: |
-          echo "Starting Container Build"
-          echo "Stopping Current Container"
-          sudo docker stop my-app || true
-          echo "Removing Container"
-          sudo docker rm my-app || true
-          echo "Building New Container"
-          sudo docker run -d --name my-app -p 8080:8080 647236272635.dkr.ecr.us-east-1.amazonaws.com/ayu-sh-kr/cicd-pipeline:latest
+      - name: Stopping Current Container If Any
+        run: sudo docker stop my-app || true
+
+      - name: Removing Container
+        run: sudo docker rm my-app || true
+
+      - name: Building New Container
+        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{secrets.IMAGE_TAG}}
 
       - name: Image Cleaning
         run: |
