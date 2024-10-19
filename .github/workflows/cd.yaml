@@ -1,15 +1,13 @@
 name: CD
 
 on:
-  release:
-    types: [created]
   workflow_run:
     workflows: [ "CI" ]
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
     env:
       REGION: ${{secrets.AWS_REGION}}
@@ -39,7 +37,7 @@ jobs:
       - name: Docker Login and Image Pull
         run: |
           aws ecr get-login-password --region ${{secrets.AWS_REGION}} | sudo docker login --username AWS --password-stdin ${{steps.login-ecr.outputs.registry}}
-          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref}}
+          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref_name}}
 
       - name: Current Status Check
         run: sudo docker ps
@@ -51,7 +49,7 @@ jobs:
         run: sudo docker rm my-app || true
 
       - name: Building New Container
-        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref}}
+        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref_name}}
 
       - name: Image Cleaning
         run: |
