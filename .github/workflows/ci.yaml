@@ -2,7 +2,7 @@ name: CI
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
   push-to-ecr:
@@ -44,3 +44,54 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  pull-to-ec2:
+    runs-on: self-hosted
+    needs: push-to-ecr
+
+    env:
+      REGION: ${{secrets.AWS_REGION}}
+      ECR_REPOSITORY: ${{secrets.AWS_REPO}}
+      IMAGE_TAG: ${{ secrets.AWS_IMAGE_TAG}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{secrets.AWS_REGION}}
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_ACCESS_KEY_SECRET}}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'false'
+
+      - name: Provide docker permissions
+        run: sudo usermod -aG docker ${USER}
+
+      - name: Docker Login and Image Pull
+        run: |
+          aws ecr get-login-password --region ${{secrets.AWS_REGION}} | sudo docker login --username AWS --password-stdin ${{steps.login-ecr.outputs.registry}}
+          sudo docker pull ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref_name}}
+
+      - name: Current Status Check
+        run: sudo docker ps
+
+      - name: Stopping Current Container If Any
+        run: sudo docker stop my-app || true
+
+      - name: Removing Container
+        run: sudo docker rm my-app || true
+
+      - name: Building New Container
+        run: sudo docker run -d --name my-app -p 8080:8080 ${{steps.login-ecr.outputs.registry}}/${{secrets.AWS_REPO}}:${{github.ref_name}}
+
+      - name: Image Cleaning
+        run: |
+          echo "Starting Image Pruning"
+          sudo docker image prune -a -f
